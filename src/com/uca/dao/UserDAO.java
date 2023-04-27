@@ -112,7 +112,7 @@ public class UserDAO extends _Generic<UserEntity> {
             JSONParser parse = new JSONParser();
             JSONObject data_obj = (JSONObject) parse.parse(inline);
 
-            // PokemonEntity pokemon = new PokemonEntity();
+            PokemonEntity pokemon = new PokemonEntity();
             // a finir apres la classe pokemon
 
         }
