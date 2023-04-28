@@ -2,6 +2,7 @@ package com.uca.entity;
 
 import com.uca.core.UserCore;
 import com.uca.dao.UserDAO;
+import java.util.ArrayList;
 
 public class PokemonEntity {
 
@@ -9,12 +10,11 @@ public class PokemonEntity {
     private Integer idPokemon;
     private Integer level;
     private String name;
-    private String type;
+    private ArrayList<String> type;
     private String sprite;
-    private Integer idPokemonEvolution;
 
-    PokemonEntity() {
-
+    public PokemonEntity() {
+        this.type = new ArrayList<String>();
     }
 
     /* GETTEUR */
@@ -39,11 +39,39 @@ public class PokemonEntity {
         return this.sprite;
     }
 
-    public String getType() {
+    public ArrayList<String> getType() {
         return this.type;
     }
 
-    public Integer getIdPokemonEvolution() {
-        return this.idPokemonEvolution;
+
+    /* SETTEUR */
+
+    public void setIdAPI(Integer idAPI) {
+        this.idAPI = idAPI;
     }
+
+    public void setIdPokemon(Integer idPokemon) {
+        this.idPokemon = idPokemon;
+    }
+
+    public void setLevel(Integer level) {
+        if (level <= 100) {
+            this.level = level;
+        } else {
+            this.level = 100;
+        }
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setSprite(String sprite) {
+        this.sprite = sprite;
+    }
+
+    public void setType(String type) {
+        this.type.add(type);
+    }
+
 }

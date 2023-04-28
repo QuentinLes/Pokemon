@@ -3,8 +3,11 @@ package com.uca.entity;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.ArrayList;
+
 import com.uca.core.UserCore;
 import com.uca.dao.UserDAO;
+
+import java.util.Random;
 
 public class UserEntity {
 
@@ -19,6 +22,7 @@ public class UserEntity {
     private boolean connection;
 
     public UserEntity() {
+        this.pokemon = new ArrayList<PokemonEntity>();
     }
 
     /* GETTEUR */
@@ -103,7 +107,7 @@ public class UserEntity {
     }
 
     public boolean register(String firstName, String lastName, String userName, String email, String password,
-            String comfirmPassword) {
+                            String comfirmPassword) {
 
         if (password == comfirmPassword) {
 
@@ -138,8 +142,13 @@ public class UserEntity {
             Random random = new Random();
             double number;
             number = random.nextDouble();
-            pokemon.add(UserCore.getFreePokemon(number));
-            return true;
+            PokemonEntity newPokemon = UserCore.getFreePokemon(this, number);
+            if (newPokemon != null) {
+                this.pokemon.add((newPokemon));
+                this.lastFreePokemon = today;
+                return true;
+            }
+            return false;
         } else {
             return false;
         }
