@@ -1,19 +1,40 @@
 package com.uca.gui;
 
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.HashMap;
+
 public class MarketGUI {
-    public static String displayMarket() {
-        return "";
+    public static String displayMarket() throws IOException, TemplateException {
+        Configuration configuration = _FreeMarkerInitializer.getContext();
+
+        HashMap<String, Object> input = new HashMap<>();
+
+        Writer output = new StringWriter();
+        Template template = configuration.getTemplate("users/register.ftl");
+        template.setOutputEncoding("UTF-8");
+        template.process(input, output);
+
+        return output.toString();
     }
 
-    public static String displayMarketAdd() {
-        return "";
+    public static String displayMarketAdd() throws IOException, TemplateException {
+        
+        Configuration configuration = _FreeMarkerInitializer.getContext();
+
+        HashMap<String, Object> input = new HashMap<>();
+
+        Writer output = new StringWriter();
+        Template template = configuration.getTemplate("users/register.ftl");
+        template.setOutputEncoding("UTF-8");
+        template.process(input, output);
+
+        return output.toString();
     }
 
-    public static boolean addExchange(Integer userId, Integer idPokemonExchange, Integer idPokemonRequire) {
-        return true;
-    }
-
-    public static void exchange(Integer userId, Integer userId2, Integer pokemon1, Integer pokemon2) {
-
-    }
 }

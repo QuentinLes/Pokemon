@@ -14,6 +14,6 @@ import java.util.Map;
 public class UserGUI {
 
     public static String displayUser(Integer userId) {
-        return "";
+        return "test";
     }
 }

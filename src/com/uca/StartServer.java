@@ -4,7 +4,7 @@ import com.uca.dao._Initializer;
 import com.uca.gui.*;
 import com.uca.entity.UserEntity;
 
-import src.com.uca.gui.AccueilGUI;
+import com.uca.gui.AccueilGUI;
 
 import static spark.Spark.*;
 
@@ -60,13 +60,16 @@ public class StartServer {
             String lastName = req.queryParams("lastname");
             String email = req.queryParams("email");
             String password = req.queryParams("password");
-            String comfirmPassword = req.queryParams("comfirmPassword");
+            String confirmPassword = req.queryParams("confirmPassword");
+            System.out.println(userName);
             boolean success;
             UserEntity user = new UserEntity();
-            success = user.register(firstName, lastName, userName, email, password, comfirmPassword);
+            success = user.register(firstName, lastName, userName, email, password, confirmPassword);
             if (success) {
+                System.out.println("inscription validee");
                 return AccueilGUI.display(); // Mettre un message de succes
             } else {
+                System.out.println("inscription refusee");
                 return RegisterGUI.displayRegister(); // Mettre un message d'erreur
             }
         });
@@ -114,11 +117,13 @@ public class StartServer {
             Integer userId = Integer.valueOf(req.params(":userId"));
             Integer pokemonIdExchange = Integer.valueOf(req.queryParams("idPokemonExchange"));
             Integer pokemonIdRequire = Integer.valueOf(req.queryParams("idPokemonRequire"));
+            /*
             if (MarketGUI.addExchange(userId, pokemonIdExchange, pokemonIdRequire)) {
                 return MarketGUI.displayMarket(); // Message de succes
             } else {
                 return MarketGUI.displayMarketAdd(); // Message de refus
-            }
+            }*/
+            return MarketGUI.displayMarket();
         });
 
         // Fais l'echanger (1 pour 1) avec un utilisateur
@@ -127,7 +132,7 @@ public class StartServer {
             Integer userId2 = Integer.valueOf(req.queryParams("userId2"));
             Integer pokemon1 = Integer.valueOf(req.queryParams("pokemon1"));
             Integer pokemon2 = Integer.valueOf(req.queryParams("pokemon2"));
-            MarketGUI.exchange(userId, userId2, pokemon1, pokemon2);
+            //MarketGUI.exchange(userId, userId2, pokemon1, pokemon2);
             return MarketGUI.displayMarket();
         });
 

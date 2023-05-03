@@ -107,9 +107,9 @@ public class UserEntity {
     }
 
     public boolean register(String firstName, String lastName, String userName, String email, String password,
-                            String comfirmPassword) {
+                            String confirmPassword) {
 
-        if (password == comfirmPassword) {
+        if (password == confirmPassword) {
 
             this.firstName = firstName;
             this.lastName = lastName;
