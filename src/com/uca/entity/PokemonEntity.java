@@ -1,7 +1,7 @@
 package com.uca.entity;
 
-import com.uca.core.UserCore;
-import com.uca.dao.UserDAO;
+import com.uca.core.PokemonCore;
+
 import java.util.ArrayList;
 
 public class PokemonEntity {
@@ -12,6 +12,8 @@ public class PokemonEntity {
     private String name;
     private ArrayList<String> type;
     private String sprite;
+
+    private Integer shiny;
 
     public PokemonEntity() {
         this.type = new ArrayList<String>();
@@ -41,6 +43,10 @@ public class PokemonEntity {
 
     public ArrayList<String> getType() {
         return this.type;
+    }
+
+    public Integer getShiny() {
+        return this.shiny;
     }
 
 
@@ -74,4 +80,19 @@ public class PokemonEntity {
         this.type.add(type);
     }
 
+    public void setShiny(Integer shiny) {
+        this.shiny = shiny;
+    }
+
+    /* METHOD */
+
+    public boolean levelUp() {
+        if (level < 100) {
+            level++;
+
+            PokemonCore.saveLevel(level, idPokemon);
+            return true;
+        }
+        return false;
+    }
 }

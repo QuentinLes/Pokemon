@@ -4,7 +4,7 @@
 
 <ul>
     <#list users as user>
-        <li>${user.id} - ${user.firstName} ${user.lastName}</li>
+        <li>${user.id} <a href="profil/${user.userName}"> ${user.userName} </a> ${user.numberPokemon}</li>
     </#list>
 </ul>
 

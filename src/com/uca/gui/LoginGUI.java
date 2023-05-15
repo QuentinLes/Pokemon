@@ -11,14 +11,15 @@ import java.util.HashMap;
 
 public class LoginGUI {
 
-    public static String displayLogin() throws IOException, TemplateException {
+    public static String displayLogin(String msg) throws IOException, TemplateException {
 
         Configuration configuration = _FreeMarkerInitializer.getContext();
 
         HashMap<String, Object> input = new HashMap<>();
+        input.put("msg", msg);
 
         Writer output = new StringWriter();
-        Template template = configuration.getTemplate("users/register.ftl");
+        Template template = configuration.getTemplate("users/login.ftl");
         template.setOutputEncoding("UTF-8");
         template.process(input, output);
 

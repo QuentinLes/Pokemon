@@ -4,8 +4,10 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.ArrayList;
 
+import com.uca.core.PokemonCore;
 import com.uca.core.UserCore;
 import com.uca.dao.UserDAO;
+import org.eclipse.jetty.websocket.api.SuspendToken;
 
 import java.util.Random;
 
@@ -19,6 +21,10 @@ public class UserEntity {
     private Date lastFreePokemon;
     private String userName;
     private ArrayList<PokemonEntity> pokemon;
+    private Date lastLevelUp;
+    private Integer levelUpPerDay;
+
+    private Integer numberPokemon;
     private boolean connection;
 
     public UserEntity() {
@@ -55,6 +61,22 @@ public class UserEntity {
         return this.lastFreePokemon;
     }
 
+    public Date getLastLevelUp() {
+        return this.lastLevelUp;
+    }
+
+    public Integer getLevelUpPerDay() {
+        return this.levelUpPerDay;
+    }
+
+    public ArrayList<PokemonEntity> getPokemon() {
+        return this.pokemon;
+    }
+
+    public Integer getNumberPokemon() {
+        return this.numberPokemon;
+    }
+
     /* SETTEUR */
 
     public void setId(Integer id) {
@@ -89,36 +111,39 @@ public class UserEntity {
         this.connection = connection;
     }
 
+    public void setPokemon(ArrayList<PokemonEntity> pokemon) {
+        this.pokemon = pokemon;
+    }
+
+    public void setLastLevelUp(Date date) {
+        this.lastLevelUp = date;
+    }
+
+    public void setLevelUpPerDay(Integer levelUpPerDay) {
+        this.levelUpPerDay = levelUpPerDay;
+    }
+
+    public void setNumberPokemon(Integer numberPokemon) {
+        this.numberPokemon = numberPokemon;
+    }
+
     /* METHOD */
-
-    public void test() {
-        UserCore.test();
-    }
-
-    public boolean connection(String userName, String password) {
-        this.password = password;
-        this.userName = userName;
-        UserCore.connection(this);
-        if (this.id >= 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 
     public boolean register(String firstName, String lastName, String userName, String email, String password,
                             String confirmPassword) {
 
-        if (password == confirmPassword) {
+        if (password.equals(confirmPassword)) {
 
             this.firstName = firstName;
             this.lastName = lastName;
             this.email = email;
             this.password = password;
             this.userName = userName;
+            this.lastFreePokemon = new Date(0l);
+            System.out.println(this.lastFreePokemon);
             this.connection = false;
             UserCore.register(this);
-
+            System.out.println(this.id);
             if (this.id < 0) {
 
                 return false;
@@ -139,19 +164,47 @@ public class UserEntity {
         Date today = new Date();
         if (today.getDate() != this.lastFreePokemon.getDate() || today.getMonth() != this.lastFreePokemon.getMonth()
                 || today.getYear() != this.lastFreePokemon.getYear()) {
-            Random random = new Random();
-            double number;
-            number = random.nextDouble();
-            PokemonEntity newPokemon = UserCore.getFreePokemon(this, number);
+            PokemonEntity newPokemon = UserCore.getFreePokemon(this);
             if (newPokemon != null) {
                 this.pokemon.add((newPokemon));
                 this.lastFreePokemon = today;
+                UserCore.saveLastFreePokemon(this);
                 return true;
             }
-            return false;
-        } else {
-            return false;
         }
+        return false;
+    }
 
+    public boolean levelUp(Integer idPokemon) {
+        for (int i = 0; i < pokemon.size(); i++) {
+            PokemonEntity p = pokemon.get(i);
+            if (p.getIdPokemon().equals(idPokemon) && this.levelUpPerDay < 5) {
+                if (p.levelUp()) {
+                    this.lastLevelUp = new Date();
+                    this.levelUpPerDay += 1;
+                    UserCore.saveLevel(lastLevelUp, levelUpPerDay, id);
+                    return true;
+                }
+                return false;
+            }
+        }
+        return false;
+    }
+
+    public boolean levelUp(UserEntity user, Integer idPokemon) {
+
+        for (int i = 0; i < user.getPokemon().size(); i++) {
+            PokemonEntity p = user.getPokemon().get(i);
+            if (p.getIdPokemon().equals(idPokemon) && this.levelUpPerDay < 5) {
+                if (p.levelUp()) {
+                    this.lastLevelUp = new Date();
+                    this.levelUpPerDay += 1;
+                    UserCore.saveLevel(lastLevelUp, levelUpPerDay, id);
+                    return true;
+                }
+                return false;
+            }
+        }
+        return false;
     }
 }

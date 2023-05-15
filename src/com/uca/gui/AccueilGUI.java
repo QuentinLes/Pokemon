@@ -17,7 +17,7 @@ public class AccueilGUI {
         HashMap<String, Object> input = new HashMap<>();
 
         Writer output = new StringWriter();
-        Template template = configuration.getTemplate("users/register.ftl");
+        Template template = configuration.getTemplate("users/accueil.ftl");
         template.setOutputEncoding("UTF-8");
         template.process(input, output);
 
