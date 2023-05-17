@@ -1,17 +1,15 @@
 package com.uca.dao;
 
-import com.uca.dao._Connector;
-import com.uca.dao._Generic;
+
+import com.uca.core.PokemonCore;
 import com.uca.entity.UserEntity;
 import com.uca.entity.PokemonEntity;
 
-import java.util.Random;
+import java.util.*;
 import java.sql.*;
-import java.util.Iterator;
-import java.util.ArrayList;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Scanner;
+import java.util.Date;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -19,191 +17,28 @@ import org.json.simple.parser.JSONParser;
 
 public class UserDAO extends _Generic<UserEntity> {
 
-    public void test() {
-        try {
-            ResultSet result;
-            PreparedStatement request;
-            request = connect.prepareStatement(
-                    "INSERT INTO user (email,userName, firstname, lastname, password,lastFreePokemon) VALUES ('email','userName','firstName','lastName','password',TO_DATE('10/10/1990','DD/MM/YYYY'));");
-            request.executeUpdate();
-
-            request = connect.prepareStatement(
-                    "SELECT id,email,firstName,LastName,password,lastFreePokemon FROM user;");
-            result = request.executeQuery();
-            while (result.next()) {
-                System.out.println(result.getDate("lastFreePokemon"));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public PokemonEntity getFreePokemon(double number) {
+    public PokemonEntity getFreePokemon() {
         Random rand = new Random();
         boolean find = false;
         Integer id;
-        id = (rand.nextInt() % 1008) + 1;
+        id = (rand.nextInt(1008)) + 1;
+        PokemonEntity newPokemon;
+        Float shiny = rand.nextFloat();
+        if (shiny < 0.05) {
 
-        while (!find) {
-
-            try {
-                URL url = new URL("https://pokeapi.co/api/v2/pokemon-species/" + id);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("GET");
-                conn.connect();
-
-                /* Getting the response code */
-
-                int responsecode = conn.getResponseCode();
-
-                if (responsecode != 200) {
-                    throw new RuntimeException("HttpResponseCode: " + responsecode);
-                } else {
-
-                    String inline = "";
-                    Scanner scanner = new Scanner(url.openStream());
-
-                    /* Write all the JSON data into a string using a scanner */
-                    while (scanner.hasNext()) {
-                        inline += scanner.nextLine();
-                    }
-
-                    /* Using the JSON simple library parse the string into a json object */
-
-                    JSONParser parse = new JSONParser();
-                    JSONObject data_obj = (JSONObject) parse.parse(inline);
-
-                    boolean legendary = (boolean) data_obj.get("is-legendary");
-                    boolean mythical = (boolean) data_obj.get("is-mythical");
-
-                    /* Get the required object from the above created object */
-                    if (number <= 0.005 && mythical) {
-                        find = true;
-                    } else if (number <= 0.01 && legendary) {
-                        find = true;
-                    } else {
-                        find = true;
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            id = (rand.nextInt() % 1008) + 1;
+            newPokemon = PokemonCore.getPokemonByIdAPI(id, 1);
+            newPokemon.setIdAPI(id);
+            newPokemon.setShiny(1);
+        } else {
+            newPokemon = PokemonCore.getPokemonByIdAPI(id, 0);
+            newPokemon.setIdAPI(id);
+            newPokemon.setShiny(0);
         }
-        PokemonEntity newPokemon = pokemonSpecies(id);
-        newPokemon = pokemon(newPokemon);
+        if (newPokemon == null) {
+            return null;
+        }
+
         return newPokemon;
-    }
-
-    private PokemonEntity pokemonSpecies(Integer id) {
-
-        /* Connection in url = https://pokeapi.co/api/v2/pokemon-species/id */
-        try {
-            URL url = new URL("https://pokeapi.co/api/v2/pokemon-species/" + id);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.connect();
-
-            /* Getting the response code */
-
-            int responsecode = conn.getResponseCode();
-
-            if (responsecode != 200) {
-                throw new RuntimeException("HttpResponseCode: " + responsecode);
-            } else {
-                String inline = "";
-                Scanner scanner = new Scanner(url.openStream());
-                /* Write all the JSON data into a string using a scanner */
-                while (scanner.hasNext()) {
-                    inline += scanner.nextLine();
-                }
-
-                /* Using the JSON simple library parse the string into a json object */
-
-                JSONParser parse = new JSONParser();
-                JSONObject data_obj = (JSONObject) parse.parse(inline);
-
-                /* Create new pokemon with API */
-
-                PokemonEntity pokemon = new PokemonEntity();
-                pokemon.setIdAPI(id);
-                pokemon.setLevel(1);
-                JSONArray name = (JSONArray) data_obj.get("names");
-
-                for (int i = 0; i < name.size(); i++) {
-                    JSONObject object = (JSONObject) name.get(i);
-                    object = (JSONObject) object.get("language");
-                    if (object.get("name") == "en") {
-                        JSONObject pokemonName = (JSONObject) name.get(i);
-                        pokemon.setName((String) pokemonName.get("name"));
-                        break;
-                    }
-                }
-                return pokemon;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    private PokemonEntity pokemon(PokemonEntity pokemon) {
-        /* Connection in url = https://pokeapi.co/api/v2/pokemon/id */
-
-        try {
-            Integer id = pokemon.getIdAPI();
-            URL url = new URL("https://pokeapi.co/api/v2/pokemon/" + id);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.connect();
-
-            /* Getting the response code */
-
-            int responsecode = conn.getResponseCode();
-
-            if (responsecode != 200) {
-                throw new RuntimeException("HttpResponseCode: " + responsecode);
-            } else {
-                String inline = "";
-                Scanner scanner = new Scanner(url.openStream());
-                /* Write all the JSON data into a string using a scanner */
-                while (scanner.hasNext()) {
-                    inline += scanner.nextLine();
-                }
-
-                /* Using the JSON simple library parse the string into a json object */
-
-                JSONParser parse = new JSONParser();
-                JSONObject data_obj = (JSONObject) parse.parse(inline);
-
-                /* Complete pokemon with API */
-
-                /* Get sprites in API */
-
-                JSONObject sprites = (JSONObject) data_obj.get("sprites");
-                Random rand = new Random();
-                double value = rand.nextDouble();
-                if (value < 0.05) {
-                    pokemon.setSprite((String) sprites.get("front_shiny"));
-                } else {
-                    pokemon.setSprite((String) sprites.get("front_default"));
-                }
-
-                /* Get types in API */
-
-                JSONArray types = (JSONArray) data_obj.get("types");
-
-                for (int i = 0; i < types.size(); i++) {
-                    JSONObject type = (JSONObject) types.get(i);
-                    type = (JSONObject) type.get("type");
-                    pokemon.setType((String) type.get("name"));
-                }
-                return pokemon;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 
     public UserEntity connection(UserEntity obj) {
@@ -214,43 +49,49 @@ public class UserDAO extends _Generic<UserEntity> {
                     "SELECT id,email,firstName,LastName,password,lastFreePokemon FROM user where userName = ?;");
             request.setString(1, obj.getUserName());
             result = request.executeQuery();
-            while (result.next()) {
-                if (result.getString("password") == obj.getPassword()) {
+            if (result.next()) {
+
+                if (result.getString("password").equals(obj.getPassword())) {
                     obj.setId(result.getInt("id"));
                     obj.setEmail(result.getString("email"));
                     obj.setFirstName(result.getString("firstName"));
                     obj.setLastName(result.getString("lastName"));
-                    obj.setLastFreePokemon(result.getDate("lastFreePokemon"));
+                    obj.setLastFreePokemon(new Date(result.getLong("lastFreePokemon")));
                     obj.setConnection(true);
+                    return obj;
                 }
             }
-            return obj;
+            return null;
+
         } catch (SQLException e) {
             e.printStackTrace();
             obj.setConnection(false);
-            return obj;
+            return null;
         }
 
     }
 
     public UserEntity create(UserEntity obj) {
-
+        System.out.println("create");
         Integer id = -1;
         obj.setId(id);
         try {
             PreparedStatement request;
-            request = connect.prepareStatement("INSERT INTO user VALUES(?,?,?,?,?);");
+            request = connect.prepareStatement("INSERT INTO user (email,userName,firstName,lastName,password,lastFreePokemon) VALUES(?,?,?,?,?,?);");
             request.setString(1, obj.getEmail());
             request.setString(2, obj.getUserName());
             request.setString(3, obj.getFirstName());
             request.setString(4, obj.getLastName());
             request.setString(5, obj.getPassword());
-            request.executeQuery();
+            request.setLong(6, obj.getLastFreePokemon().getTime());
+            request.executeUpdate();
             request = connect.prepareStatement("SELECT id FROM user where email = ?;");
             request.setString(1, obj.getEmail());
             ResultSet resultSet = request.executeQuery();
             if (resultSet.next()) {
                 obj.setId(resultSet.getInt("id"));
+                System.out.println("Ajout validee");
+                return obj;
             }
             obj.setId(id);
             return obj;
@@ -272,5 +113,100 @@ public class UserDAO extends _Generic<UserEntity> {
             return false;
         }
 
+    }
+
+    public UserEntity getById(Integer id) {
+        try {
+            UserEntity user = new UserEntity();
+            PreparedStatement request = this.connect.prepareStatement(
+                    "SELECT email,firstName,lastName,userName,lastFreePokemon,lastPexing,pexing FROM user where id = ?;"
+            );
+            request.setInt(1, id);
+            ResultSet result = request.executeQuery();
+            if (result.next()) {
+                user.setEmail(result.getString("email"));
+                user.setFirstName(result.getString("firstName"));
+                user.setLastName(result.getString("lastName"));
+                user.setLastFreePokemon(new Date(result.getLong("lastFreePokemon")));
+                user.setUserName(result.getString("userName"));
+                user.setLastLevelUp(new Date(result.getLong("lastPexing")));
+                user.setLevelUpPerDay(result.getInt("pexing"));
+                user.setId(id);
+            }
+            return user;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public UserEntity getByUserName(String username) {
+        try {
+            UserEntity user = new UserEntity();
+            PreparedStatement request = this.connect.prepareStatement(
+                    "SELECT id,email,firstName,lastName,userName,lastFreePokemon,lastPexing,pexing FROM user where userName = ?;"
+            );
+            request.setString(1, username);
+            ResultSet result = request.executeQuery();
+            if (result.next()) {
+                user.setEmail(result.getString("email"));
+                user.setFirstName(result.getString("firstName"));
+                user.setLastName(result.getString("lastName"));
+                user.setLastFreePokemon(new Date(result.getLong("lastFreePokemon")));
+                user.setUserName(result.getString("userName"));
+                user.setLastLevelUp(new Date(result.getLong("lastPexing")));
+                user.setLevelUpPerDay(result.getInt("pexing"));
+                user.setId(result.getInt("id"));
+            }
+            return user;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public void saveLastFreePokemon(UserEntity user) {
+        try {
+            PreparedStatement request = this.connect.prepareStatement("UPDATE user set lastFreePokemon = ? where id = ?;");
+            request.setLong(1, user.getLastFreePokemon().getTime());
+            request.setInt(2, user.getId());
+            request.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveLevel(Date date, Integer levelUpPerDay, Integer id) {
+        try {
+            PreparedStatement request = this.connect.prepareStatement(
+                    "UPDATE user SET lastPexing = ?, pexing = ? where id=?;"
+            );
+            request.setLong(1, date.getTime());
+            request.setInt(2, levelUpPerDay);
+            request.setInt(3, id);
+            request.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public ArrayList<UserEntity> getAllUsers(Integer id) {
+        ArrayList<UserEntity> users = new ArrayList<>();
+        try {
+            PreparedStatement user = this.connect.prepareStatement(
+                    "SELECT id,userName,count(*) as number FROM user INNER JOIN pokemon on user.id = pokemon.idOwner GROUP BY id;"
+            );
+            ResultSet results = user.executeQuery();
+            while (results.next()) {
+                UserEntity newUser = new UserEntity();
+                newUser.setId(results.getInt("id"));
+                newUser.setUserName(results.getString("userName"));
+                newUser.setNumberPokemon(results.getInt("number"));
+                users.add(newUser);
+            }
+            return users;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

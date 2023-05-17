@@ -2,7 +2,7 @@
 apply plugin: 'java'
 apply plugin: 'application'
 
-mainClassName='com.uca.StartServer'
+mainClassName = 'com.uca.StartServer'
 
 repositories {
     mavenCentral()
@@ -18,16 +18,17 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.1'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.11.1'
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+    implementation 'org.slf4j:slf4j-simple:1.7.25'
 }
 test {
     useJUnitPlatform()
 }
 
 jar {
- manifest {
+    manifest {
         attributes 'Implementation-Title': 'Gradle Quickstart',
-                   'Implementation-Version': '1.0.0',
-                   'Main-Class': 'com.uca.StartServer'
+                'Implementation-Version': '1.0.0',
+                'Main-Class': 'com.uca.StartServer'
     }
 }
 
