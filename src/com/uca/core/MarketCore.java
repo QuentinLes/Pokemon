@@ -21,7 +21,11 @@ public class MarketCore {
         return new MarketDAO().getAllExchange();
     }
 
-    public static String exchange(MarketEntity obj, Integer idOwner, Integer idPokemon) throws SQLException {
-        return new MarketDAO().exchange(obj, idOwner, idPokemon);
+    public static String exchange(Integer idOwner1, Integer idPokemon1, Integer idOwner2, Integer idPokemon2, Integer idExchange) throws SQLException {
+        return new MarketDAO().exchange(idOwner1, idPokemon1, idOwner2, idPokemon2, idExchange);
+    }
+
+    public static MarketEntity getExchangeById(Integer id) {
+        return new MarketDAO().getExchangeById(id);
     }
 }

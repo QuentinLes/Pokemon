@@ -5,6 +5,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import java.awt.image.AreaAveragingScaleFilter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.Statement;
@@ -67,7 +68,7 @@ public class PokemonDAO extends _Generic<PokemonEntity> {
         try {
             ArrayList<PokemonEntity> pokemon = new ArrayList<>();
             PreparedStatement request = this.connect.prepareStatement(
-                    "SELECT idPokemon, idAPI,level,shiny FROM pokemon where idOwner = ?;"
+                    "SELECT idPokemon, idAPI,level,shiny FROM pokemon WHERE idOwner = ?;"
             );
             request.setInt(1, idOwner);
             ResultSet result = request.executeQuery();
@@ -83,19 +84,19 @@ public class PokemonDAO extends _Generic<PokemonEntity> {
                         "SELECT sprite,shinySprite,name,idType1,idType2 FROM pokedex WHERE idAPI = ?;"
                 );
                 infoPokemon.setInt(1, pok.getIdAPI());
-                result = infoPokemon.executeQuery();
-                result.next();
+                ResultSet pokedex = infoPokemon.executeQuery();
+                pokedex.next();
 
-                pok.setType(result.getString("idType1"));
-                if (!result.getString("idType2").equals("null")) {
-                    pok.setType(result.getString("idType2"));
+                pok.setType(pokedex.getString("idType1"));
+                if (!pokedex.getString("idType2").equals("null")) {
+                    pok.setType(pokedex.getString("idType2"));
                 }
                 if (pok.getShiny() == 0) {
-                    pok.setSprite(result.getString("sprite"));
+                    pok.setSprite(pokedex.getString("sprite"));
                 } else {
-                    pok.setSprite(result.getString("shinySprite"));
+                    pok.setSprite(pokedex.getString("shinySprite"));
                 }
-                pok.setName(result.getString("name"));
+                pok.setName(pokedex.getString("name"));
                 pokemon.add(pok);
             }
             return pokemon;
@@ -105,19 +106,22 @@ public class PokemonDAO extends _Generic<PokemonEntity> {
         }
     }
 
-    public ArrayList<String> getAllName() {
+    public ArrayList<PokemonEntity> getAllName() {
 
-        PokemonEntity pokemon;
-        ArrayList<String> names = new ArrayList<>();
+
+        ArrayList<PokemonEntity> pokemons = new ArrayList<>();
         try {
             PreparedStatement request = this.connect.prepareStatement(
-                    "SELECT name FROM pokedex;"
+                    "SELECT idAPI,name FROM pokedex;"
             );
             ResultSet result = request.executeQuery();
             while (result.next()) {
-                names.add(result.getString("name"));
+                PokemonEntity pokemon = new PokemonEntity();
+                pokemon.setName(result.getString(("name")));
+                pokemon.setIdAPI(result.getInt("idAPI"));
+                pokemons.add(pokemon);
             }
-            return names;
+            return pokemons;
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
@@ -153,7 +157,7 @@ public class PokemonDAO extends _Generic<PokemonEntity> {
                 PreparedStatement requestPokedex = this.connect.prepareStatement(
                         "SELECT sprite,shinySprite,name,idType1,idType2 FROM pokedex WHERE idAPI =?"
                 );
-                requestPokemon.setInt(1, pokemon.getIdAPI());
+                requestPokedex.setInt(1, pokemon.getIdAPI());
                 ResultSet resultPokedex = requestPokedex.executeQuery();
                 resultPokedex.next();
                 if (pokemon.getShiny() == 0) {
@@ -163,7 +167,7 @@ public class PokemonDAO extends _Generic<PokemonEntity> {
                 }
                 pokemon.setName(resultPokedex.getString("name"));
                 pokemon.setType(resultPokedex.getString("idType1"));
-                if (!resultPokedex.getString("idType2").equals("null")) {
+                if (resultPokedex.getString("idType2") != "null") {
                     pokemon.setType(resultPokedex.getString("idType2"));
                 }
                 return pokemon;
@@ -187,20 +191,18 @@ public class PokemonDAO extends _Generic<PokemonEntity> {
             );
             requestPokedex.setInt(1, idPokemon);
             ResultSet resultPokedex = requestPokedex.executeQuery();
-            System.out.println("test");
-            System.out.println(idPokemon);
             if (resultPokedex.next()) {
-
                 if (shiny == 0) {
                     pokemon.setSprite(resultPokedex.getString("sprite"));
                 } else {
                     pokemon.setSprite(resultPokedex.getString("shinySprite"));
                 }
-                pokemon.setName(resultPokedex.getString("name"));
 
+                pokemon.setName(resultPokedex.getString("name"));
                 pokemon.setType(resultPokedex.getString("idType1"));
-                System.out.println("test2");
-                if (!resultPokedex.getString("idType2").equals("null")) {
+                pokemon.setIdAPI(idPokemon);
+
+                if (resultPokedex.getString("idType2") != "null") {
                     pokemon.setType(resultPokedex.getString("idType2"));
                 }
                 return pokemon;
@@ -399,6 +401,41 @@ public class PokemonDAO extends _Generic<PokemonEntity> {
                 return pokemon;
             }
         } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public ArrayList<PokemonEntity> getAllPokemonWithIdAPI(Integer idOwner, Integer idAPI, Integer shiny) {
+
+        ArrayList<PokemonEntity> pokemons = new ArrayList<>();
+
+        try {
+
+            PreparedStatement request = this.connect.prepareStatement(
+                    "SELECT idPokemon,name,level,sprite FROM pokemon INNER JOIN pokedex ON pokemon.idAPI = pokedex.idAPI WHERE idOwner = ? AND pokedex.idAPI = ? AND shiny = ?;"
+            );
+            request.setInt(1, idOwner);
+            request.setInt(2, idAPI);
+            request.setInt(3, shiny);
+            ResultSet result = request.executeQuery();
+
+            while (result.next()) {
+
+                PokemonEntity pokemon = new PokemonEntity();
+                pokemon.setIdAPI(idAPI);
+                pokemon.setIdPokemon(result.getInt("idPokemon"));
+                pokemon.setName(result.getString("name"));
+                pokemon.setLevel(result.getInt("level"));
+                pokemon.setSprite(result.getString("sprite"));
+                pokemon.setShiny(shiny);
+                pokemons.add(pokemon);
+
+            }
+
+            return pokemons;
+
+        } catch (SQLException e) {
             e.printStackTrace();
             return null;
         }

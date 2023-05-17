@@ -25,15 +25,17 @@
 
     <#list market as exchange>
         <li>
-            <ul>${exchange.id} , ${exchange.propietaire} </ul>
-            <ul>Exchanged : ${pokemonExchanged.name} <img
-                        src=${pokemonExchanged.sprite} size="100%"> ${pokemonExchanged.level}</ul>
-            <ul>Wanted : ${pokemonWanted.name} <img src=${pokemonWanted.sprite} size="100%"></ul>
+            <ul>${exchange.id} , ${exchange.idOwner} </ul>
+            <ul>Exchanged : ${exchange.exchangedPokemon.name} <img
+                        src=${exchange.exchangedPokemon.sprite} size="100%"> level: ${exchange.exchangedPokemon.level}
+            </ul>
+            <ul>Wanted : ${exchange.wantedPokemon.name} <img src=${exchange.wantedPokemon.sprite} size="100%"></ul>
         </li>
 
-        <form action="/market/exchange" method="post">x
-            <input name="idPokemon" value="${pokemons.idPokemon}" hidden="true">
-            <input value="Level up" type="submit">
+        <form action="/market/exchange" method="get">
+            <input name="idPokemon" value="${exchange.wantedPokemon.idAPI}" type="hidden">
+            <input name="id" value="${exchange.id}" type="hidden">
+            <input value="Exchange" type="submit">
         </form>
     </#list>
 </main>

@@ -12,6 +12,8 @@ public class MarketEntity {
 
     private PokemonEntity exchangedPokemon;
 
+    private Integer shiny;
+
     public MarketEntity() {
         //nothing todo
     }
@@ -34,6 +36,10 @@ public class MarketEntity {
         this.wantedPokemon = wantedPokemon;
     }
 
+    public void setShiny(Integer shiny) {
+        this.shiny = shiny;
+    }
+
     /* GETTEUR */
 
     public Integer getId() {
@@ -52,13 +58,18 @@ public class MarketEntity {
         return wantedPokemon;
     }
 
+    public Integer getShiny() {
+        return shiny;
+    }
+
     /* METHOD */
 
-    public String createExchange(Integer idOwner, PokemonEntity exchangedPokemon, PokemonEntity wantedPokemon) {
+    public String createExchange(Integer idOwner, PokemonEntity exchangedPokemon, PokemonEntity wantedPokemon, Integer shiny) {
         this.exchangedPokemon = exchangedPokemon;
         this.wantedPokemon = wantedPokemon;
         this.idOwner = idOwner;
         this.id = -1;
+        this.shiny = shiny;
         return MarketCore.addExchange(this);
     }
 }

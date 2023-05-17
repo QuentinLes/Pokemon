@@ -16,26 +16,32 @@ public class _Initializer {
             PreparedStatement pokemon;
             PreparedStatement type;
             PreparedStatement pokedex;
+            PreparedStatement exchange;
 
             /* Create table user */
 
-            /*user = connection.prepareStatement(
-                    " DROP TABLE pokemon;");
-            user.executeUpdate();
-
-            type = connection.prepareStatement(
-                    "DROP TABLE type;"
+            /*exchange = connection.prepareStatement(
+                    "DROP TABLE exchange;"
             );
-            type.executeUpdate();
+            exchange.executeUpdate();
+
+            market = connection.prepareStatement(
+                    " DROP TABLE market;");
+            market.executeUpdate();
 
             pokedex = connection.prepareStatement(
                     "DROP TABLE pokedex;"
             );
             pokedex.executeUpdate();
 
-            user = connection.prepareStatement(
-                    " DROP TABLE market;");
-            user.executeUpdate();
+            type = connection.prepareStatement(
+                    "DROP TABLE type;"
+            );
+            type.executeUpdate();
+
+            pokemon = connection.prepareStatement(
+                    " DROP TABLE pokemon;");
+            pokemon.executeUpdate();
 
             user = connection.prepareStatement(
                     " DROP TABLE user;");
@@ -63,9 +69,13 @@ public class _Initializer {
 
             /* Create table market */
             market = connection.prepareStatement(
-                    "CREATE TABLE IF NOT EXISTS market (id int primary key auto_increment , idOwner int, idPokemonEchanger int, idPokemonVoulut int,FOREIGN KEY (idOwner) REFERENCES user(id),FOREIGN KEY (idPokemonEchanger) REFERENCES pokemon(idPokemon))");
+                    "CREATE TABLE IF NOT EXISTS market (id int primary key auto_increment , idOwner int,FOREIGN KEY (idOwner) REFERENCES user(id))");
             market.executeUpdate();
 
+            exchange = connection.prepareStatement(
+                    "CREATE TABLE  IF NOT EXISTS exchange(idExchange int, idPokemonWanted int, idPokemonTrade int, shiny int, PRIMARY KEY(idExchange,idPokemonWanted,idPokemonTrade), FOREIGN KEY(idExchange) REFERENCES market(id), FOREIGN KEY(idPokemonWanted) REFERENCES pokedex(idAPI),FOREIGN KEY(idPokemonTrade) REFERENCES pokemon(idPokemon) )"
+            );
+            exchange.executeUpdate();
 
             //PokemonCore.addAllPokemon();
 

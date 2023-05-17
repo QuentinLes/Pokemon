@@ -15,28 +15,21 @@
     </nav>
 </header>
 <main>
-    <form action="/market/add" method="post">
+
+    <#if pokemonUser?size == 0>
+        <p> Vous ne pouvez pas faire d'echange car vous n'avez pas de pokemons a echanger</p>
+    </#if>
+    <form action="/market/exchange" method="post">
 
         <label for="pokemonExchange">Witch pokemon would you want to exchanged?</label>
         <select name="pokemonExchange">
             <option value="">--Please choose an option--</option>
             <#list pokemonUser as pokemonName>
-                <option value=${pokemonName.idPokemon}>${pokemonName.name}</option>
+                <option value=${pokemonName.idPokemon}>${pokemonName.name} ${pokemonName.level}</option>
             </#list>
         </select>
-
-        <label for="pokemonWanted">Witch pokemon would you want to exchanged?</label>
-        <select name="idPokemon">
-            <option value="">--Please choose an option--</option>
-            <#list allPokemon as pokemonNames>
-                <option value=${pokemonNames.idAPI}>${pokemonNames.name}</option>
-            </#list>
-        </select>
-
-        <input type="checkbox" name="shiny">
-        <label for="shiny">Shiny mandatory ?</label>
-
-        <input type="submit" value="Add Exchange">
+        <input type="hidden" value="${idExchange}" name="idExchange">
+        <input type="submit" value="Exchange">
     </form>
 
 </main>

@@ -176,6 +176,10 @@ public class UserEntity {
     }
 
     public boolean levelUp(Integer idPokemon) {
+        Date date = new Date();
+        if (date.getYear() != this.lastLevelUp.getYear() || date.getMonth() != this.lastLevelUp.getMonth() || date.getDate() != this.lastLevelUp.getDate()) {
+            this.levelUpPerDay = 0;
+        }
         for (int i = 0; i < pokemon.size(); i++) {
             PokemonEntity p = pokemon.get(i);
             if (p.getIdPokemon().equals(idPokemon) && this.levelUpPerDay < 5) {

@@ -4,6 +4,8 @@ import com.uca.core.MarketCore;
 import com.uca.core.PokemonCore;
 import com.uca.core.UserCore;
 import com.uca.dao.MarketDAO;
+import com.uca.dao.PokemonDAO;
+import com.uca.entity.MarketEntity;
 import com.uca.entity.PokemonEntity;
 import com.uca.security.doLogin;
 import com.uca.dao._Initializer;
@@ -50,7 +52,6 @@ public class StartServer {
             user.setPassword(password);
             try {
                 String log = doLogin.login(user);
-                System.out.println(log);
                 if (log == null) {
                     res.redirect("/login?msg=Invalid user name or password", 303);
                     return null;
@@ -159,6 +160,8 @@ public class StartServer {
         // Pexer un pokemon
         post("/profil", (req, res) -> {
             UserEntity connectedUser = getAuthenticatedUser(req);
+            System.out.println(connectedUser.getLastLevelUp());
+            System.out.println(connectedUser.getLevelUpPerDay());
             if (connectedUser == null) {
                 res.redirect("/login", 303);
                 return null;
@@ -219,29 +222,80 @@ public class StartServer {
                 return null;
             }
             String pokemonExchange = req.queryParams("pokemonExchange");
-            String[] values = pokemonExchange.split(".");
-            pokemonExchange = values[0];
-            Integer id = Integer.valueOf(values[1]);
+            Integer id = Integer.valueOf(pokemonExchange);
             PokemonEntity pokemonEx = PokemonCore.getPokemonById(id);
-            if (pokemonExchange == null) {
+            if (pokemonEx == null) {
                 res.redirect("/market?msg = error with pokemon exchange");
                 return null;
             }
 
+            String shiny = req.queryParams("shiny");
+            Integer shi;
+            if (shiny == "on") {
+                shi = 1;
+            } else {
+                shi = 0;
+            }
             String pokemonWanted = req.queryParams("pokemonWanted");
-            
+            Integer idAPI = Integer.valueOf(pokemonWanted);
+            PokemonEntity pokemonWan = PokemonCore.getPokemonByIdAPI(idAPI, 0);
+            if (pokemonWan == null) {
+                res.redirect("/market?msg = error with pokemon wanted");
+                return null;
+            }
 
-            return MarketGUI.displayMarket();
+            MarketEntity market = new MarketEntity();
+            String msg = market.createExchange(connectedUser.getId(), pokemonEx, pokemonWan, shi);
+            if (msg != null) {
+                res.redirect("/market? msg=" + msg, 303);
+                return null;
+            }
+            res.redirect("/market", 303);
+            return null;
+        });
+
+
+        // Page de l'echange
+        get("/market/exchange", (req, res) -> {
+            UserEntity connectedUser = getAuthenticatedUser(req);
+            if (connectedUser == null) {
+
+                res.redirect("/login", 303);
+                return null;
+
+            }
+            Integer idPokemon = Integer.valueOf(req.queryParams("idPokemon"));
+            Integer id = Integer.valueOf(req.queryParams("id"));
+
+            MarketEntity exchange = MarketCore.getExchangeById(id);
+            if (exchange == null) {
+                res.redirect("/market?msg = Error, exchange not found", 303);
+                return null;
+            }
+
+            return MarketGUI.displayMarketExchange(connectedUser, exchange);
         });
 
         // Fais l'echanger (1 pour 1) avec un utilisateur
-        post("/user/:userId/market/exchange", (req, res) -> {
-            Integer userId = Integer.valueOf(req.params(":userId"));
-            Integer userId2 = Integer.valueOf(req.queryParams("userId2"));
-            Integer pokemon1 = Integer.valueOf(req.queryParams("pokemon1"));
-            Integer pokemon2 = Integer.valueOf(req.queryParams("pokemon2"));
-            //MarketGUI.exchange(userId, userId2, pokemon1, pokemon2);
-            return MarketGUI.displayMarket();
+        post("/market/exchange", (req, res) -> {
+            UserEntity connectedUser = getAuthenticatedUser(req);
+            if (connectedUser == null) {
+
+                res.redirect("/login", 303);
+                return null;
+
+            }
+
+            Integer idExchange = Integer.valueOf(req.queryParams("idExchange"));
+            Integer pokemon1 = Integer.valueOf(req.queryParams("pokemonExchange"));
+            MarketEntity exchange = MarketCore.getExchangeById(idExchange);
+            String msg = MarketCore.exchange(exchange.getIdOwner(), exchange.getExchangedPokemon().getIdPokemon(), connectedUser.getId(), pokemon1, idExchange);
+            if (msg == null) {
+                res.redirect("/market", 303);
+                return null;
+            }
+            res.redirect("/market?msg = " + msg, 303);
+            return null;
         });
 
     }

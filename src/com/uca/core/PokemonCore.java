@@ -5,6 +5,7 @@ import com.uca.dao.UserDAO;
 import com.uca.entity.UserEntity;
 import com.uca.entity.PokemonEntity;
 
+
 import java.util.ArrayList;
 
 public class PokemonCore {
@@ -14,7 +15,11 @@ public class PokemonCore {
         return pokemon;
     }
 
-    public static ArrayList<String> getAllName() {
+    public static ArrayList<PokemonEntity> getAllPokemonWithIdAPI(Integer idOwner, Integer idAPI, Integer shiny) {
+        return new PokemonDAO().getAllPokemonWithIdAPI(idOwner, idAPI, shiny);
+    }
+
+    public static ArrayList<PokemonEntity> getAllName() {
         return new PokemonDAO().getAllName();
     }
 
